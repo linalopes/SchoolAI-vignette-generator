@@ -1,0 +1,41 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Thumbnails
+Thumbs.db
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local exports (generated files)
+*.webm
+*.svg
+!favicon.svg
+
+# Audio/video assets not part of the app
+*.wav
+*.mp3
+*.mp4
+*.mov
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Node (if ever added accidentally)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python
+__pycache__/
+*.pyc
+.env
