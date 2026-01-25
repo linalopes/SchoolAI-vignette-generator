@@ -19,12 +19,6 @@ Thumbs.db
 *.svg
 !favicon.svg
 
-# Audio/video assets not part of the app
-*.wav
-*.mp3
-*.mp4
-*.mov
-
 # Temporary files
 *.tmp
 *.temp
