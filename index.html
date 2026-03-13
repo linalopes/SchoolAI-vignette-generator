@@ -1006,8 +1006,8 @@
 
                 // Deterministic sizing based on orientation
                 const isPortrait = currentFormat === 'PORTRAIT_9_16' || h > w;
-                const kPortrait = 0.30;
-                const kLandscape = 0.20;
+                const kPortrait = 0.14;
+                const kLandscape = 0.11;
                 const base = isPortrait ? w : h;
                 let maxRadius = base * (isPortrait ? kPortrait : kLandscape);
 
@@ -1015,7 +1015,7 @@
                 const safetyMargin = 40 * u;
                 const maxAllowedRadius = min(w, h) / 2 - safetyMargin;
                 maxRadius = min(maxRadius, maxAllowedRadius);
-                maxRadius = constrain(maxRadius, 50 * u, maxAllowedRadius);
+                maxRadius = constrain(maxRadius, 22 * u, maxAllowedRadius);
 
                 if (isGlobal) push(); else g.push();
                 if (isGlobal) noStroke(); else g.noStroke();
@@ -1066,10 +1066,10 @@
 
                 if (isGlobal) push(); else g.push();
 
-                let aiSize     = constrain(radius * 0.42, 16, 52);
-                let schoolSize = constrain(radius * 0.13, 7, 13);
-                let nameSize   = constrain(radius * 0.20, 10, 24);
-                let gap        = radius * 0.18;
+                let aiSize     = constrain(radius * 0.50, 12, 36);
+                let schoolSize = constrain(h * 0.022, 11, 16);
+                let nameSize   = constrain(h * 0.08, 32, 72);
+                let gap        = constrain(radius * 0.35, 8, 24);
 
                 // "AI" always inside circle, Deep Purple, centered
                 if (isGlobal) {
