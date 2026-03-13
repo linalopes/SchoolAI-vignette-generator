@@ -880,7 +880,7 @@
         }
 
         function draw() {
-            background(230);
+            background(240, 237, 232);
             noise_time += noise_delta_time;
 
             // Get simulation resolution for consistent cache density
@@ -999,14 +999,15 @@
                     return 1 - pow(1 - t, 3);
                 }
 
-                let centerX = w / 2;
-                let centerY = h / 2;
+                const isPortraitLayout = currentFormat === 'PORTRAIT_9_16' || h > w;
+                let centerX = isPortraitLayout ? w / 2 : w * 0.72;
+                let centerY = isPortraitLayout ? h * 0.38 : h / 2;
                 let minRadius = 5 * u;
 
                 // Deterministic sizing based on orientation
                 const isPortrait = currentFormat === 'PORTRAIT_9_16' || h > w;
-                const kPortrait = 0.50;
-                const kLandscape = 0.42;
+                const kPortrait = 0.30;
+                const kLandscape = 0.20;
                 const base = isPortrait ? w : h;
                 let maxRadius = base * (isPortrait ? kPortrait : kLandscape);
 
@@ -1014,7 +1015,7 @@
                 const safetyMargin = 40 * u;
                 const maxAllowedRadius = min(w, h) / 2 - safetyMargin;
                 maxRadius = min(maxRadius, maxAllowedRadius);
-                maxRadius = constrain(maxRadius, 140 * u, maxAllowedRadius);
+                maxRadius = constrain(maxRadius, 50 * u, maxAllowedRadius);
 
                 if (isGlobal) push(); else g.push();
                 if (isGlobal) noStroke(); else g.noStroke();
@@ -1058,86 +1059,155 @@
                 }
                 if (isGlobal) pop(); else g.pop();
 
-                // Typewriter text
-                const showText = isExport || elapsed >= circleTransitionDuration;
-                if (showText) {
-                    if (!isExport && vignetteStartTime === null) {
-                        vignetteStartTime = millis();
-                    }
+                let fadeIn = isExport ? 1 : min(max((elapsed - circleTransitionDuration) / 500, 0), 1);
 
-                    let textElapsed = isExport ? 100000 : millis() - vignetteStartTime;
-                    let totalChars = vignetteLine1.length + vignetteLine2.length;
-                    let charsToShow = isExport ? totalChars : floor(textElapsed / typewriterSpeed);
-                    charsToShow = min(charsToShow, totalChars);
+                // -- BRAND LOCKUP: format-aware --
+                // Lockup is brand-locked. Text inputs retained for legacy SVG export only.
 
-                    let fadeIn = isExport ? 1 : min(textElapsed / 500, 1);
+                if (isGlobal) push(); else g.push();
 
-                    if (isGlobal) push(); else g.push();
+                let aiSize     = constrain(radius * 0.42, 16, 52);
+                let schoolSize = constrain(radius * 0.13, 7, 13);
+                let nameSize   = constrain(radius * 0.20, 10, 24);
+                let gap        = radius * 0.18;
+
+                // "AI" always inside circle, Deep Purple, centered
+                if (isGlobal) {
+                    textFont('Space Grotesk');
+                    textSize(aiSize);
+                    textStyle(NORMAL);
+                    textAlign(CENTER, CENTER);
+                    fill(34, 17, 62, fadeIn * 255);
+                    noStroke();
+                    text('AI', circleX, circleY);
+                } else {
+                    g.textFont('Space Grotesk');
+                    g.textSize(aiSize);
+                    g.textStyle(NORMAL);
+                    g.textAlign(CENTER, CENTER);
+                    g.fill(34, 17, 62, fadeIn * 255);
+                    g.noStroke();
+                    g.text('AI', circleX, circleY);
+                }
+
+                if (isPortraitLayout) {
+                    // PORTRAIT D: vertical lockup — divider + SCHOOL OF + name below circle
+
+                    let dividerW = radius * 0.40;
+                    let dividerY = circleY + radius + gap * 0.5;
+                    let schoolY  = dividerY + gap * 0.6;
+                    let nameY    = schoolY + schoolSize * 1.7;
+
+                    // pink divider
                     if (isGlobal) {
-                        textFont('Space Grotesk');
-                        textStyle(BOLD);
-                    } else {
-                        g.textFont('Space Grotesk');
-                        g.textStyle(BOLD);
-                    }
-
-                    const isPortraitText = currentFormat === 'PORTRAIT_9_16' || h > w;
-                    const baseFont = isPortraitText ? w : h;
-                    let fontSize = isPortraitText ? baseFont / 10 : baseFont / 9;
-                    fontSize = constrain(fontSize, 28, 96);
-
-                    if (isGlobal) {
-                        textSize(fontSize);
-                        textAlign(CENTER, CENTER);
-                        fill(255, 255, 255, fadeIn * 255);
+                        stroke(234, 125, 255, fadeIn * 220);
+                        strokeWeight(1);
+                        line(circleX - dividerW / 2, dividerY, circleX + dividerW / 2, dividerY);
                         noStroke();
                     } else {
-                        g.textSize(fontSize);
-                        g.textAlign(CENTER, CENTER);
-                        g.fill(255, 255, 255, fadeIn * 255);
+                        g.stroke(234, 125, 255, fadeIn * 220);
+                        g.strokeWeight(1);
+                        g.line(circleX - dividerW / 2, dividerY, circleX + dividerW / 2, dividerY);
                         g.noStroke();
                     }
 
-                    let lineSpacing = fontSize * 0.9;
-                    let line1Y = h / 2 - lineSpacing / 2;
-                    let line2Y = h / 2 + lineSpacing / 2;
-
-                    let line1Chars = min(charsToShow, vignetteLine1.length);
-                    let displayLine1 = vignetteLine1.substring(0, line1Chars);
-
-                    if (!isExport && charsToShow < vignetteLine1.length) {
-                        let cursorBlink = floor(millis() / 500) % 2 === 0;
-                        if (cursorBlink) {
-                            displayLine1 += "|";
-                        }
-                    }
-
+                    // "SCHOOL OF"
                     if (isGlobal) {
-                        text(displayLine1, w / 2, line1Y);
+                        textFont('Courier Prime');
+                        textSize(schoolSize);
+                        textAlign(CENTER, TOP);
+                        fill(34, 17, 62, fadeIn * 180);
+                        noStroke();
+                        text('SCHOOL OF', circleX, schoolY);
                     } else {
-                        g.text(displayLine1, w / 2, line1Y);
+                        g.textFont('Courier Prime');
+                        g.textSize(schoolSize);
+                        g.textAlign(CENTER, TOP);
+                        g.fill(34, 17, 62, fadeIn * 180);
+                        g.noStroke();
+                        g.text('SCHOOL OF', circleX, schoolY);
                     }
 
-                    if (charsToShow > vignetteLine1.length) {
-                        let line2Chars = min(charsToShow - vignetteLine1.length, vignetteLine2.length);
-                        let displayLine2 = vignetteLine2.substring(0, line2Chars);
-
-                        if (!isExport && charsToShow < totalChars) {
-                            let cursorBlink = floor(millis() / 500) % 2 === 0;
-                            if (cursorBlink) {
-                                displayLine2 += "|";
-                            }
-                        }
-
-                        if (isGlobal) {
-                            text(displayLine2, w / 2, line2Y);
-                        } else {
-                            g.text(displayLine2, w / 2, line2Y);
-                        }
+                    // "Tomorrow's AI"
+                    if (isGlobal) {
+                        textFont('Space Grotesk');
+                        textSize(nameSize);
+                        textStyle(NORMAL);
+                        textAlign(CENTER, TOP);
+                        fill(34, 17, 62, fadeIn * 255);
+                        noStroke();
+                        text("Tomorrow\u2019s AI", circleX, nameY);
+                    } else {
+                        g.textFont('Space Grotesk');
+                        g.textSize(nameSize);
+                        g.textStyle(NORMAL);
+                        g.textAlign(CENTER, TOP);
+                        g.fill(34, 17, 62, fadeIn * 255);
+                        g.noStroke();
+                        g.text("Tomorrow\u2019s AI", circleX, nameY);
                     }
 
-                    if (isGlobal) pop(); else g.pop();
+                } else {
+                    // LANDSCAPE B: horizontal lockup — vertical divider + SCHOOL OF + name to the right of circle
+
+                    let dividerX   = circleX + radius + gap * 0.7;
+                    let dividerH   = radius * 0.80;
+                    let dividerTop = circleY - dividerH / 2;
+                    let textX      = dividerX + gap * 0.8;
+                    let schoolY    = circleY - schoolSize * 1.4 - nameSize * 0.5;
+                    let nameY      = schoolY + schoolSize * 1.7;
+
+                    // vertical pink divider
+                    if (isGlobal) {
+                        stroke(234, 125, 255, fadeIn * 220);
+                        strokeWeight(1);
+                        line(dividerX, dividerTop, dividerX, dividerTop + dividerH);
+                        noStroke();
+                    } else {
+                        g.stroke(234, 125, 255, fadeIn * 220);
+                        g.strokeWeight(1);
+                        g.line(dividerX, dividerTop, dividerX, dividerTop + dividerH);
+                        g.noStroke();
+                    }
+
+                    // "SCHOOL OF"
+                    if (isGlobal) {
+                        textFont('Courier Prime');
+                        textSize(schoolSize);
+                        textAlign(LEFT, TOP);
+                        fill(34, 17, 62, fadeIn * 180);
+                        noStroke();
+                        text('SCHOOL OF', textX, schoolY);
+                    } else {
+                        g.textFont('Courier Prime');
+                        g.textSize(schoolSize);
+                        g.textAlign(LEFT, TOP);
+                        g.fill(34, 17, 62, fadeIn * 180);
+                        g.noStroke();
+                        g.text('SCHOOL OF', textX, schoolY);
+                    }
+
+                    // "Tomorrow's AI"
+                    if (isGlobal) {
+                        textFont('Space Grotesk');
+                        textSize(nameSize);
+                        textStyle(NORMAL);
+                        textAlign(LEFT, TOP);
+                        fill(34, 17, 62, fadeIn * 255);
+                        noStroke();
+                        text("Tomorrow\u2019s AI", textX, nameY);
+                    } else {
+                        g.textFont('Space Grotesk');
+                        g.textSize(nameSize);
+                        g.textStyle(NORMAL);
+                        g.textAlign(LEFT, TOP);
+                        g.fill(34, 17, 62, fadeIn * 255);
+                        g.noStroke();
+                        g.text("Tomorrow\u2019s AI", textX, nameY);
+                    }
                 }
+
+                if (isGlobal) pop(); else g.pop();
             } else if (!isExport) {
                 circleTransitionStart = null;
                 circleStartPosSim = null;
