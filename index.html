@@ -6,215 +6,314 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@300;600&family=Space+Grotesk:wght@300;500&display=swap" rel="stylesheet">
     <title>School of Tomorrow's AI Vignette Generator</title>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.11.0/lib/p5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/p5.js-svg@1.6.0/dist/p5.svg.min.js"></script>
     <style>
         * {
-            box-sizing: border-box;
+          box-sizing: border-box;
         }
+
+        :root {
+          --color-bg:        #FFFFFF;
+          --color-text:      #22113E;
+          --color-text-muted:#888888;
+          --color-surface:   #CAD8D8;
+          --color-primary:   #EA7DFF;
+          --color-on-primary:#22113E;
+          --color-accent:    #08F2DB;
+          --color-border:    rgba(34, 17, 62, 0.12);
+          --font-title:      'Space Grotesk', sans-serif;
+          --font-body:       'Inter', sans-serif;
+          --font-mono:       'Courier Prime', monospace;
+          --radius:          4px;
+          --space-2:         10px;
+          --space-3:         16px;
+          --space-4:         24px;
+        }
+
         body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: 'Inter', sans-serif;
-            background: #2a2a2a;
-            display: flex;
-            height: 100vh;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          font-family: var(--font-body);
+          font-weight: 300;
+          background: var(--color-surface);
+          display: flex;
+          height: 100vh;
+          color: var(--color-text);
         }
+
         #stage {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: var(--color-surface);
         }
+
         #stage canvas {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 12px rgba(34, 17, 62, 0.12);
         }
+
         #panel {
-            width: 280px;
-            background: #22113E;
-            color: #fff;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+          width: 280px;
+          background: var(--color-bg);
+          border-left: 0.5px solid var(--color-border);
+          color: var(--color-text);
+          padding: var(--space-4);
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-3);
         }
+
         #panel h3 {
-            margin: 0 0 8px 0;
-            color: #ea7dff;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+          margin: 0 0 var(--space-2) 0;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          font-weight: 400;
+          letter-spacing: 0.14em;
+          color: var(--color-text-muted);
+          text-transform: uppercase;
         }
+
         #panel label {
-            display: block;
-            font-size: 12px;
-            color: #aaa;
-            margin-bottom: 4px;
+          display: block;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          font-weight: 400;
+          letter-spacing: 0.10em;
+          color: var(--color-text-muted);
+          margin-bottom: 4px;
         }
+
         #panel input[type="range"] {
-            width: 100%;
-            margin-bottom: 4px;
-            accent-color: #08F2DB;
+          width: 100%;
+          margin-bottom: 4px;
+          accent-color: var(--color-primary);
         }
+
         #panel input[type="text"],
         #panel input[type="number"],
         #panel select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background: #333;
-            color: #fff;
-            font-size: 14px;
+          width: 100%;
+          padding: 8px var(--space-3);
+          border: 0.5px solid rgba(34, 17, 62, 0.25);
+          border-radius: var(--radius);
+          background: var(--color-bg);
+          color: var(--color-text);
+          font-family: var(--font-body);
+          font-size: 13px;
+          font-weight: 300;
+          outline: none;
+          transition: border-color 0.2s ease;
         }
+
+        #panel input[type="text"]:focus,
+        #panel input[type="number"]:focus,
+        #panel select:focus {
+          border-color: var(--color-primary);
+        }
+
         #panel select {
-            cursor: pointer;
+          cursor: pointer;
         }
+
         #panel button {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: background 0.2s;
+          padding: 8px var(--space-3);
+          border: 0.5px solid var(--color-border);
+          border-radius: var(--radius);
+          cursor: pointer;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          font-weight: 400;
+          letter-spacing: 0.10em;
+          background: transparent;
+          color: var(--color-text);
+          transition: background 0.2s ease, border-color 0.2s ease;
         }
+
+        #panel button:hover {
+          background: rgba(34, 17, 62, 0.04);
+        }
+
         #panel button.primary {
-            background: #7B3AEF;
-            color: #fff;
+          background: var(--color-primary);
+          color: var(--color-on-primary);
+          border-color: var(--color-primary);
         }
+
         #panel button.primary:hover {
-            background: #6a2ed6;
+          opacity: 0.9;
         }
+
         #panel button.secondary {
-            background: #444;
-            color: #fff;
+          background: transparent;
+          color: var(--color-text-muted);
+          border-color: var(--color-border);
         }
+
         #panel button.secondary:hover {
-            background: #555;
+          color: var(--color-text);
+          border-color: rgba(34, 17, 62, 0.4);
         }
+
         #panel button.export {
-            background: #08F2DB;
-            color: #22113E;
+          background: var(--color-accent);
+          color: var(--color-on-primary);
+          border-color: var(--color-accent);
+          width: 100%;
+          margin-top: var(--space-2);
         }
+
         #panel button.export:hover {
-            background: #06d4c0;
+          opacity: 0.9;
         }
+
         #panel button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+          opacity: 0.3;
+          cursor: not-allowed;
         }
+
         .control-group {
-            border-bottom: 1px solid #333;
-            padding-bottom: 16px;
+          border-bottom: 0.5px solid var(--color-border);
+          padding-bottom: var(--space-3);
         }
+
         .control-group:last-child {
-            border-bottom: none;
+          border-bottom: none;
         }
+
         .value-display {
-            font-size: 12px;
-            color: #ea7dff;
-            float: right;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          color: var(--color-primary);
+          float: right;
         }
+
         .button-row {
-            display: flex;
-            gap: 8px;
+          display: flex;
+          gap: 6px;
         }
+
         .button-row button {
-            flex: 1;
+          flex: 1;
         }
+
         .checkbox-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
         }
+
         .checkbox-row input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: #08F2DB;
+          width: 14px;
+          height: 14px;
+          accent-color: var(--color-primary);
         }
+
         .checkbox-row label {
-            margin: 0;
-            color: #fff;
+          margin: 0;
+          font-size: 12px;
+          color: var(--color-text);
+          letter-spacing: 0;
         }
+
         .custom-size-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
+          display: flex;
+          gap: 6px;
+          margin-top: 6px;
         }
+
         .custom-size-row input {
-            flex: 1;
+          flex: 1;
         }
+
         .hidden {
-            display: none !important;
+          display: none !important;
         }
+
         .export-status {
-            font-size: 11px;
-            margin-top: 8px;
-            padding: 6px 8px;
-            border-radius: 4px;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          margin-top: 6px;
+          padding: 6px 8px;
+          border-radius: var(--radius);
         }
+
         .export-status.error {
-            background: rgba(255, 107, 107, 0.2);
-            color: #ff6b6b;
+          background: rgba(204, 68, 68, 0.08);
+          color: #CC4444;
         }
+
         .export-status.success {
-            background: rgba(8, 242, 219, 0.2);
-            color: #08F2DB;
+          background: rgba(8, 242, 219, 0.12);
+          color: var(--color-text);
         }
+
         .export-status.warning {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
+          background: rgba(34, 17, 62, 0.06);
+          color: var(--color-text-muted);
         }
+
         .record-status {
-            font-size: 12px;
-            margin-top: 8px;
-            padding: 8px;
-            border-radius: 4px;
-            text-align: center;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          margin-top: 6px;
+          padding: 6px 8px;
+          border-radius: var(--radius);
+          text-align: center;
+          letter-spacing: 0.08em;
         }
+
         .record-status.idle {
-            background: rgba(255, 255, 255, 0.1);
-            color: #888;
+          background: rgba(34, 17, 62, 0.04);
+          color: var(--color-text-muted);
         }
+
         .record-status.recording {
-            background: rgba(255, 107, 107, 0.3);
-            color: #ff6b6b;
-            animation: pulse 1s infinite;
+          background: rgba(234, 125, 255, 0.10);
+          color: var(--color-primary);
+          animation: pulse 1s infinite;
         }
+
         .record-status.success {
-            background: rgba(8, 242, 219, 0.2);
-            color: #08F2DB;
+          background: rgba(8, 242, 219, 0.12);
+          color: var(--color-text);
         }
+
         .record-status.error {
-            background: rgba(255, 107, 107, 0.2);
-            color: #ff6b6b;
+          background: rgba(204, 68, 68, 0.08);
+          color: #CC4444;
         }
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
         }
+
         #panel button.record {
-            background: #ff6b6b;
-            color: #fff;
+          background: var(--color-primary);
+          color: var(--color-on-primary);
+          border-color: var(--color-primary);
         }
+
         #panel button.record:hover {
-            background: #ff5252;
+          opacity: 0.9;
         }
+
         #panel button.record.recording {
-            background: #ff5252;
-            animation: pulse 1s infinite;
+          background: var(--color-primary);
+          animation: pulse 1s infinite;
         }
+
         .controls-locked {
-            opacity: 0.5;
-            pointer-events: none;
+          opacity: 0.4;
+          pointer-events: none;
         }
     </style>
 </head>
