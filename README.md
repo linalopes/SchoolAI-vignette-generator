@@ -22,7 +22,7 @@ python3 -m http.server 8080
 ```
 
 **Formats:** 1920×1080 (YouTube) or 1080×1920 (Reels/TikTok)  
-**Outputs:** `.svg` vector or `.webm` video up to 4K
+**Outputs:** `.svg` (full composition + lockup) or `.webm` (particles/lines only) up to 4K
 
 ---
 
@@ -66,8 +66,8 @@ Then open `http://localhost:8080` in your browser.
 | `+` / `=` | Increase animation speed |
 | `-` / `_` | Decrease animation speed |
 | `0` | Pause / Resume |
-| `C` | Clear canvas |
-| `R` | Reset to default drawing |
+| `C` | Reset to default drawing |
+| `R` | Clear canvas |
 | `S` | Export SVG |
 
 ### Panel Controls
@@ -77,7 +77,7 @@ Then open `http://localhost:8080` in your browser.
 | **Animation Speed** | 0.1× to 10× playback |
 | **Max Visible Points** | Tail length (higher = longer trail) |
 | **Number of Lines** | Layered line copies (1–30) |
-| **Title Text** | Customize Line 1 and Line 2 |
+| **Vignette Text** | Legacy inputs kept in UI (brand lockup is fixed) |
 | **Debug** | Show stats overlay |
 
 ---
@@ -101,6 +101,10 @@ Then open `http://localhost:8080` in your browser.
 6. File auto-downloads when complete
 
 **Output:** `vignette_WxH_FPS_DURATION_BITRATE.webm`
+
+### Export Notes
+- **SVG:** Full composition: particles, flow lines, and logo lockup as vector layers (Figma/Illustrator-ready).
+- **Video:** Particles and flow lines only (WebM). Add lockup in post if needed.
 
 ---
 
@@ -195,6 +199,11 @@ Map to render target size
     ↓
 Render: lines + splashes + circle + text
 ```
+
+**Current lockup behavior:**
+- **Preview:** Lockup text is rendered as an HTML overlay synced to the canvas position.
+- **SVG export:** Lockup divider and text are rendered in p5/vector output.
+- **Video recording:** Circle/lockup render is disabled in-canvas; particles/flow lines only.
 
 ### Head/Tail Animation
 
@@ -328,7 +337,7 @@ python3 -m http.server 8080
 
 Every hand-drawn line carries intention, but also imperfection. This project transforms rough gestures into smooth, flowing curves using the **Chaikin corner-cutting algorithm**—a technique developed by George Chaikin in 1974 that recursively "cuts corners" to create organic curves from jagged polylines.
 
-The result is a living ribbon that breathes with Perlin noise, layered with translucent splashes that dance along the path. When the animation completes, a soft circle blooms at the center and the title emerges letter by letter: *School of Tomorrow's AI*.
+The result is a living ribbon that breathes with Perlin noise, layered with translucent splashes that dance along the path. When the animation completes, a soft circle blooms and the brand lockup appears in composition.
 
 It's a meditation on transformation: from noise to signal, from gesture to design, from raw input to refined output.
 
@@ -336,7 +345,7 @@ It's a meditation on transformation: from noise to signal, from gesture to desig
 1. **Path reveal** — Smoothed lines trace your drawn gesture
 2. **Splash particles** — Perlin noise-driven dots bloom along the curve
 3. **Circle transition** — Translucent pink circle moves to center and grows
-4. **Title reveal** — Typewriter effect displays the title text
+4. **Brand lockup** — Circle/AI lockup appears in preview and export-specific composition
 
 ---
 
