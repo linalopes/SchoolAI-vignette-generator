@@ -339,6 +339,11 @@
           gap: 2px;
           opacity: 0;
           transition: opacity 0.5s;
+          padding: 8px 12px;
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(2px);
+          -webkit-backdrop-filter: blur(2px);
+          border-radius: 4px;
         }
 
         #lockup-overlay .school-of {
@@ -364,9 +369,10 @@
             0 0 4px rgba(240,237,232,1),
             0 0 8px rgba(240,237,232,1),
             0 0 16px rgba(240,237,232,1),
-            0 0 24px rgba(240,237,232,0.95),
-            0 0 32px rgba(240,237,232,0.90),
-            0 0 48px rgba(240,237,232,0.85);
+            0 0 24px rgba(240,237,232,1),
+            0 0 36px rgba(240,237,232,0.98),
+            0 0 52px rgba(240,237,232,0.95),
+            0 0 72px rgba(240,237,232,0.90);
         }
 
         /* Portrait: vertical lockup below circle */
@@ -538,6 +544,19 @@
                 <strong>S:</strong> Export SVG<br>
                 <strong>Esc:</strong> Stop recording
             </div>
+        </div>
+        <div class="control-group" style="margin-top: auto; padding-top: 16px; border-top: 0.5px solid rgba(34,17,62,0.12);">
+          <h3>Export Notes</h3>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div>
+              <div style="font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: 400; letter-spacing: 0.10em; color: #22113E; margin-bottom: 3px;">SVG</div>
+              <div style="font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 300; color: #888888; line-height: 1.5;">Full composition: particles, flow lines, and logo lockup as separate vector layers. Ready for Figma or Illustrator.</div>
+            </div>
+            <div>
+              <div style="font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: 400; letter-spacing: 0.10em; color: #22113E; margin-bottom: 3px;">Video</div>
+              <div style="font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 300; color: #888888; line-height: 1.5;">Particles and flow lines only. Exported as WebM — convert to MP4 with HandBrake or similar. Overlay the logo in post.</div>
+            </div>
+          </div>
         </div>
     </div>
 
@@ -1171,71 +1190,171 @@
                     opacity = 0.8;
                 }
 
-                const circleColor = color(234, 125, 255, opacity * 255);
-                if (isGlobal) {
-                    fill(circleColor);
-                    ellipse(circleX, circleY, radius * 2, radius * 2);
-                } else {
-                    g.fill(circleColor);
-                    g.ellipse(circleX, circleY, radius * 2, radius * 2);
-                }
-                if (isGlobal) pop(); else g.pop();
-
                 let fadeIn = isExport ? 1 : min(max((elapsed - circleTransitionDuration) / 500, 0), 1);
 
-                // -- BRAND LOCKUP: format-aware --
-                // Lockup is brand-locked. Text inputs retained for legacy SVG export only.
+                if (!isRecording) {
+                    const circleColor = color(234, 125, 255, opacity * 255);
+                    if (isGlobal) {
+                        fill(circleColor);
+                        ellipse(circleX, circleY, radius * 2, radius * 2);
+                    } else {
+                        g.fill(circleColor);
+                        g.ellipse(circleX, circleY, radius * 2, radius * 2);
+                    }
+                    if (isGlobal) pop(); else g.pop();
 
-                if (isGlobal) push(); else g.push();
+                    // -- BRAND LOCKUP: format-aware --
+                    // Lockup is brand-locked. Text inputs retained for legacy SVG export only.
 
-                let aiSize     = constrain(radius * 0.50, 12, 36);
-                let gap        = constrain(radius * 0.35, 8, 24);
+                    if (isGlobal) push(); else g.push();
 
-                // "AI" always inside circle, Deep Purple, centered
-                if (isGlobal) {
-                    textFont('Space Grotesk');
-                    textSize(aiSize);
-                    textStyle(NORMAL);
-                    textAlign(CENTER, CENTER);
-                    fill(34, 17, 62, fadeIn * 255);
-                    noStroke();
-                    text('AI', circleX, circleY);
+                    let aiSize     = constrain(radius * 0.50, 12, 36);
+                    // "AI" always inside circle, Deep Purple, centered
+                    if (isGlobal) {
+                        textFont('Space Grotesk');
+                        textSize(aiSize);
+                        textStyle(NORMAL);
+                        textAlign(CENTER, CENTER);
+                        fill(34, 17, 62, fadeIn * 255);
+                        noStroke();
+                        text('AI', circleX, circleY);
+                    } else {
+                        g.textFont('Space Grotesk');
+                        g.textSize(aiSize);
+                        g.textStyle(NORMAL);
+                        g.textAlign(CENTER, CENTER);
+                        g.fill(34, 17, 62, fadeIn * 255);
+                        g.noStroke();
+                        g.text('AI', circleX, circleY);
+                    }
                 } else {
-                    g.textFont('Space Grotesk');
-                    g.textSize(aiSize);
-                    g.textStyle(NORMAL);
-                    g.textAlign(CENTER, CENTER);
-                    g.fill(34, 17, 62, fadeIn * 255);
-                    g.noStroke();
-                    g.text('AI', circleX, circleY);
+                    if (isGlobal) pop(); else g.pop();
+                    if (isGlobal) push(); else g.push();
                 }
 
+                let schoolSize = constrain(h * 0.022, 11, 16);
+                let nameSize   = constrain(h * 0.075, 30, 68);
+                let gap        = constrain(radius * 0.35, 8, 24);
+
                 if (isPortraitLayout) {
-                    // PORTRAIT D: vertical lockup divider only
+                    // PORTRAIT D — divider + text only on export; HTML overlay handles preview
 
                     let dividerW = radius * 0.40;
                     let dividerY = circleY + radius + gap * 0.5;
+                    let schoolY  = dividerY + gap * 0.6;
+                    let nameY    = schoolY + schoolSize * 1.7;
 
-                    // pink divider
-                    if (isGlobal) {
-                        stroke(234, 125, 255, fadeIn * 220);
-                        strokeWeight(1);
-                        line(circleX - dividerW / 2, dividerY, circleX + dividerW / 2, dividerY);
-                        noStroke();
-                    } else {
-                        g.stroke(234, 125, 255, fadeIn * 220);
-                        g.strokeWeight(1);
-                        g.line(circleX - dividerW / 2, dividerY, circleX + dividerW / 2, dividerY);
-                        g.noStroke();
+                    if (isExport) {
+                        // pink horizontal divider
+                        if (isGlobal) {
+                            stroke(234, 125, 255, 220);
+                            strokeWeight(1);
+                            line(circleX - dividerW / 2, dividerY, circleX + dividerW / 2, dividerY);
+                            noStroke();
+                        } else {
+                            g.stroke(234, 125, 255, 220);
+                            g.strokeWeight(1);
+                            g.line(circleX - dividerW / 2, dividerY, circleX + dividerW / 2, dividerY);
+                            g.noStroke();
+                        }
+
+                        // "SCHOOL OF"
+                        if (isGlobal) {
+                            textFont('Courier Prime');
+                            textSize(schoolSize);
+                            textAlign(CENTER, TOP);
+                            fill(34, 17, 62, 180);
+                            noStroke();
+                            text('SCHOOL OF', circleX, schoolY);
+                        } else {
+                            g.textFont('Courier Prime');
+                            g.textSize(schoolSize);
+                            g.textAlign(CENTER, TOP);
+                            g.fill(34, 17, 62, 180);
+                            g.noStroke();
+                            g.text('SCHOOL OF', circleX, schoolY);
+                        }
+
+                        // "Tomorrow's AI"
+                        if (isGlobal) {
+                            textFont('Space Grotesk');
+                            textSize(nameSize);
+                            textStyle(NORMAL);
+                            textAlign(CENTER, TOP);
+                            fill(34, 17, 62, 255);
+                            noStroke();
+                            text("Tomorrow\u2019s AI", circleX, nameY);
+                        } else {
+                            g.textFont('Space Grotesk');
+                            g.textSize(nameSize);
+                            g.textStyle(NORMAL);
+                            g.textAlign(CENTER, TOP);
+                            g.fill(34, 17, 62, 255);
+                            g.noStroke();
+                            g.text("Tomorrow\u2019s AI", circleX, nameY);
+                        }
                     }
 
                 } else {
-                    // LANDSCAPE B: horizontal lockup divider only
+                    // LANDSCAPE B — divider + text only on export; HTML overlay handles preview
 
                     let dividerX   = circleX + radius + gap * 0.7;
                     let dividerH   = radius * 0.80;
                     let dividerTop = circleY - dividerH / 2;
+                    let textX      = dividerX + gap * 0.8;
+                    let schoolY    = circleY - schoolSize * 1.4 - nameSize * 0.5;
+                    let nameY      = schoolY + schoolSize * 1.7;
 
+                    if (isExport) {
+                        // vertical pink divider
+                        if (isGlobal) {
+                            stroke(234, 125, 255, 220);
+                            strokeWeight(1);
+                            line(dividerX, dividerTop, dividerX, dividerTop + dividerH);
+                            noStroke();
+                        } else {
+                            g.stroke(234, 125, 255, 220);
+                            g.strokeWeight(1);
+                            g.line(dividerX, dividerTop, dividerX, dividerTop + dividerH);
+                            g.noStroke();
+                        }
+
+                        // "SCHOOL OF"
+                        if (isGlobal) {
+                            textFont('Courier Prime');
+                            textSize(schoolSize);
+                            textAlign(LEFT, TOP);
+                            fill(34, 17, 62, 180);
+                            noStroke();
+                            text('SCHOOL OF', textX, schoolY);
+                        } else {
+                            g.textFont('Courier Prime');
+                            g.textSize(schoolSize);
+                            g.textAlign(LEFT, TOP);
+                            g.fill(34, 17, 62, 180);
+                            g.noStroke();
+                            g.text('SCHOOL OF', textX, schoolY);
+                        }
+
+                        // "Tomorrow's AI"
+                        if (isGlobal) {
+                            textFont('Space Grotesk');
+                            textSize(nameSize);
+                            textStyle(NORMAL);
+                            textAlign(LEFT, TOP);
+                            fill(34, 17, 62, 255);
+                            noStroke();
+                            text("Tomorrow\u2019s AI", textX, nameY);
+                        } else {
+                            g.textFont('Space Grotesk');
+                            g.textSize(nameSize);
+                            g.textStyle(NORMAL);
+                            g.textAlign(LEFT, TOP);
+                            g.fill(34, 17, 62, 255);
+                            g.noStroke();
+                            g.text("Tomorrow\u2019s AI", textX, nameY);
+                        }
+                    }
                 }
 
                 if (isGlobal) pop(); else g.pop();
